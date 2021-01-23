@@ -1,3 +1,4 @@
+// Package testonly holds test-specific code for dynamodbtruncator.
 package testonly
 
 import (
@@ -6,6 +7,7 @@ import (
 	"testing"
 )
 
+// CmdsExec executes multiple commands.
 func CmdsExec(t *testing.T, cmds []string) {
 	t.Helper()
 	for _, cmd := range cmds {
@@ -13,6 +15,7 @@ func CmdsExec(t *testing.T, cmds []string) {
 	}
 }
 
+// CmdExec will execute certain commands.
 func CmdExec(t *testing.T, cmd string) {
 	t.Helper()
 	args := strings.Split(cmd, " ")
@@ -21,6 +24,7 @@ func CmdExec(t *testing.T, cmd string) {
 	}
 }
 
+// CmdExecCombinedOutput executes a specific command and returns the result of invoking the command.
 func CmdExecCombinedOutput(t *testing.T, cmd string) []byte {
 	t.Helper()
 	args := strings.Split(cmd, " ")

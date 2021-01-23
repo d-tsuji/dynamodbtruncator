@@ -1,3 +1,4 @@
+// Package dynamodbtruncator truncates the DynamoDB tables.
 package dynamodbtruncator
 
 import (
@@ -13,20 +14,25 @@ import (
 )
 
 const (
-	maxWriteOperationCount = 25
-	maxRetryCount          = 3
+	// DynamoDB API limit, 25 operations per request.
+	maxBatchWriteOperationCount = 25
+	maxRetryCount               = 3
 )
 
+// DB is a DynamoDB client.
 type DB struct {
 	client dynamodbiface.DynamoDBAPI
 }
 
+// New generates the DB from the AWS configuration.
 func New(p client.ConfigProvider, cfgs ...*aws.Config) *DB {
 	return &DB{dynamodb.New(p, cfgs...)}
 }
 
+// Tables handles multiple tables.
 type Tables []Table
 
+// Tables generates Tables from comma-separated table names.
 func (db *DB) Tables(name string) Tables {
 	names := strings.Split(name, ",")
 
@@ -37,11 +43,13 @@ func (db *DB) Tables(name string) Tables {
 	return tables
 }
 
+// Table handles the DynamoDB table specified by name.
 type Table struct {
 	name string
 	db   *DB
 }
 
+// Table generates the Table from the table name name.
 func (db *DB) Table(name string) Table {
 	return Table{
 		name: name,
@@ -49,6 +57,7 @@ func (db *DB) Table(name string) Table {
 	}
 }
 
+// TruncateAll truncates multiple tables in parallel.
 func (ts Tables) TruncateAll(ctx context.Context) error {
 	var eg errgroup.Group
 	for _, t := range ts {
@@ -68,6 +77,7 @@ func (ts Tables) TruncateAll(ctx context.Context) error {
 	return nil
 }
 
+// Truncate will truncate a specific table.
 func (t Table) Truncate(ctx context.Context) error {
 	keys, err := t.getKeys(ctx)
 	if err != nil {
@@ -140,7 +150,7 @@ func (t Table) batchDelete(ctx context.Context, deletes []map[string]*dynamodb.A
 			},
 		})
 
-		if maxWriteOperationCount <= len(items) {
+		if maxBatchWriteOperationCount <= len(items) {
 			out, err := t.db.client.BatchWriteItemWithContext(ctx, &dynamodb.BatchWriteItemInput{
 				RequestItems: map[string][]*dynamodb.WriteRequest{
 					t.name: items,

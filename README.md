@@ -40,5 +40,5 @@ $ dynamodbtruncator --table xxx --profile my-profile
 
 ```
 # go get
-$ go get github.com/d-tsuji/awsmfa/cmd/awsmfa
+$ go get github.com/d-tsuji/dynamodbtruncator/cmd/dynamodbtruncator
 ```

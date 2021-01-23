@@ -42,3 +42,10 @@ $ dynamodbtruncator --table hoge-table --profile my-profile
 # go get
 $ go get github.com/d-tsuji/dynamodbtruncator/cmd/dynamodbtruncator
 ```
+
+- From binary
+
+```
+# binary
+$ curl -sfL https://raw.githubusercontent.com/d-tsuji/dynamodbtruncator/master/install.sh | sudo sh -s -- -b /usr/local/bin
+```

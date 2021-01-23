@@ -12,7 +12,10 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-const maxWriteOperationCount = 25
+const (
+	maxWriteOperationCount = 25
+	maxRetryCount          = 3
+)
 
 type DB struct {
 	client dynamodbiface.DynamoDBAPI
@@ -148,26 +151,27 @@ func (t Table) batchDelete(ctx context.Context, deletes []map[string]*dynamodb.A
 		}
 	}
 
-	if len(items) > 0 {
-		out, err := t.db.client.BatchWriteItemWithContext(ctx, &dynamodb.BatchWriteItemInput{
-			RequestItems: map[string][]*dynamodb.WriteRequest{
-				t.name: items,
-			},
-		})
-		if err != nil {
-			return err
-		}
+	for i := 0; i < maxRetryCount; i++ {
+		if len(items) > 0 {
+			out, err := t.db.client.BatchWriteItemWithContext(ctx, &dynamodb.BatchWriteItemInput{
+				RequestItems: map[string][]*dynamodb.WriteRequest{
+					t.name: items,
+				},
+			})
+			if err != nil {
+				return err
+			}
 
-		// Initialize the request after a successful write.
-		items = items[:0]
+			// Initialize the request after a successful write.
+			items = items[:0]
 
-		// If there are unprocessed items, reset them.
-		remain := out.UnprocessedItems[t.name]
-		if len(remain) > 0 {
-			items = append(items, remain...)
+			// If there are unprocessed items, reset them.
+			remain := out.UnprocessedItems[t.name]
+			if len(remain) > 0 {
+				items = append(items, remain...)
+			}
 		}
 	}
-	// TODO: Consideration of unprocessed fractions...
 
 	return nil
 }

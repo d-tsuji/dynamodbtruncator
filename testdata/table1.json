@@ -1,0 +1,27 @@
+{
+  "TableName": "test-1",
+  "KeySchema": [
+    {
+      "AttributeName": "hkey",
+      "KeyType": "HASH"
+    },
+    {
+      "AttributeName": "skey",
+      "KeyType": "RANGE"
+    }
+  ],
+  "AttributeDefinitions": [
+    {
+      "AttributeName": "hkey",
+      "AttributeType": "S"
+    },
+    {
+      "AttributeName": "skey",
+      "AttributeType": "S"
+    }
+  ],
+  "ProvisionedThroughput": {
+    "ReadCapacityUnits": 1,
+    "WriteCapacityUnits": 1
+  }
+}

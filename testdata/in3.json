@@ -1,0 +1,5 @@
+{
+  "test-3": [
+    {"PutRequest": {"Item": {"hkey":{"S":"aaa"}}}}
+  ]
+}

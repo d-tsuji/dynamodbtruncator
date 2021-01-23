@@ -1,0 +1,19 @@
+{
+  "TableName": "test-3",
+  "KeySchema": [
+    {
+      "AttributeName": "hkey",
+      "KeyType": "HASH"
+    }
+  ],
+  "AttributeDefinitions": [
+    {
+      "AttributeName": "hkey",
+      "AttributeType": "S"
+    }
+  ],
+  "ProvisionedThroughput": {
+    "ReadCapacityUnits": 1,
+    "WriteCapacityUnits": 1
+  }
+}

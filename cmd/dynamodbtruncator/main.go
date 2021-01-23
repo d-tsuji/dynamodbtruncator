@@ -2,14 +2,12 @@ package main
 
 import (
 	"errors"
-	"log"
-	"os"
-	"strings"
-
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/d-tsuji/dynamodbtruncator"
 	"github.com/urfave/cli/v2"
+	"log"
+	"os"
 )
 
 func main() {
@@ -40,12 +38,7 @@ func main() {
 			if tableStr == "" {
 				return errors.New("table must be required. Please set --table [table1] or --table [table1,table2,...,table9]")
 			}
-			tables := dynamodbtruncator.Tables{}
-			ts := strings.Split(tableStr, ",")
-			for _, t := range ts {
-				tables = append(tables, db.Table(strings.TrimSpace(t)))
-			}
-			return tables.TruncateAll(c.Context)
+			return db.Tables(tableStr).TruncateAll(c.Context)
 		},
 	}
 

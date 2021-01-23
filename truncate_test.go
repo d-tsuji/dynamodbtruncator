@@ -40,6 +40,12 @@ func init() {
 }
 
 func TestTable_Truncate(t *testing.T) {
+
+	type TestTable struct {
+		Hkey string `dynamodbav:"hkey"`
+		Skey string `dynamodbav:"skey"`
+	}
+
 	tests := []struct {
 		name            string
 		tableName       string
@@ -71,7 +77,7 @@ func TestTable_Truncate(t *testing.T) {
 			},
 			inputDataFunc: func(t *testing.T) {
 				for i := 0; i < 1000; i++ {
-					item := testonly.TestTable{
+					item := TestTable{
 						Hkey: "x",
 						Skey: strconv.Itoa(i),
 					}
@@ -118,8 +124,63 @@ func TestTable_Truncate(t *testing.T) {
 			}
 			got := testonly.CmdExecCombinedOutput(t, fmt.Sprintf("aws dynamodb --endpoint-url http://localhost:4566 scan --table-name %s --no-cli-pager", tt.tableName))
 			if diff := cmp.Diff(want, got); diff != "" {
-				t.Errorf("items in table(%s) are mismatch\n%s", tt.tableName, diff)
+				t.Errorf("items in table(%s) are mismatch (-want +got)\n%s", tt.tableName, diff)
 			}
 		})
 	}
 }
+
+func TestTables_TruncateAll(t *testing.T) {
+	tests := []struct {
+		name            string
+		tableName       string
+		inputDataCmd    []string
+		cleanUpCmd      []string
+		wantOutFilePathTables map[string]string
+		wantErr         bool
+	}{
+		{
+			name:      "all tables will be deleted",
+			tableName: "test-2,test-3",
+			inputDataCmd: []string{
+				"aws dynamodb --endpoint-url http://localhost:4566 create-table --cli-input-json file://./testdata/table2.json",
+				"aws dynamodb --endpoint-url http://localhost:4566 create-table --cli-input-json file://./testdata/table3.json",
+				"aws dynamodb --endpoint-url http://localhost:4566 batch-write-item --request-items file://./testdata/in2.json",
+				"aws dynamodb --endpoint-url http://localhost:4566 batch-write-item --request-items file://./testdata/in3.json",
+			},
+			cleanUpCmd: []string{
+				`aws dynamodb --endpoint-url http://localhost:4566 delete-table --table test-2`,
+				`aws dynamodb --endpoint-url http://localhost:4566 delete-table --table test-3`,
+			},
+			wantOutFilePathTables: map[string]string{
+				filepath.Join("testdata", "out2.json"): "test-2",
+				filepath.Join("testdata", "out3.json"): "test-3",
+			},
+			wantErr:         false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tables := db.Tables(tt.tableName)
+			testonly.CmdsExec(t, tt.inputDataCmd)
+			t.Cleanup(func() { testonly.CmdsExec(t, tt.cleanUpCmd) })
+
+			if err := tables.TruncateAll(context.TODO()); (err != nil) != tt.wantErr {
+				t.Errorf("Truncate() error = %v, wantErr %v", err, tt.wantErr)
+			}
+
+			for fpath, tableName := range tt.wantOutFilePathTables {
+				want, err := ioutil.ReadFile(fpath)
+				if err != nil {
+					t.Errorf("read file error, path = %v: %v", fpath, err)
+				}
+				got := testonly.CmdExecCombinedOutput(t, fmt.Sprintf("aws dynamodb --endpoint-url http://localhost:4566 scan --table-name %s --no-cli-pager", tableName))
+				if diff := cmp.Diff(want, got); diff != "" {
+					t.Errorf("items in table(%s) are mismatch (-want +got):\n%s", tt.tableName, diff)
+				}
+			}
+		})
+	}
+}
+

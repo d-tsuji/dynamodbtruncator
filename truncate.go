@@ -27,6 +27,16 @@ func New(p client.ConfigProvider, cfgs ...*aws.Config) *DB {
 
 type Tables []Table
 
+func (db *DB) Tables(name string) Tables {
+	names := strings.Split(name, ",")
+
+	var tables Tables
+	for _, n := range names {
+		tables = append(tables, db.Table(strings.TrimSpace(n)))
+	}
+	return tables
+}
+
 type Table struct {
 	name string
 	db   *DB

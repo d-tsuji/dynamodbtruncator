@@ -1,7 +1,11 @@
 BIN := dynamodbtruncator
 BUILD_LDFLAGS := "-s -w"
 GOBIN ?= $(shell go env GOPATH)/bin
+GODOWNLOADER_VERSION := 0.1.0
 export GO111MODULE=on
+
+repo_name := d-tsuji/dynamodbtruncator
+current_dir := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
 .PHONY: all
 all: clean build
@@ -41,4 +45,12 @@ clean:
 	rm -rf $(BIN)
 	go clean
 
-
+.PHONY: installer
+installer:
+	sh -c '\
+      tmpdir=$$(mktemp -d); \
+      cd $$tmpdir; \
+      # Build from source, because "go get github.com/goreleaser/godownloader" will result in an error; \
+      git clone --quiet --depth 1 https://github.com/goreleaser/godownloader && cd godownloader; \
+      go run . -f -r ${repo_name} -o ${current_dir}/install.sh; \
+      rm -rf $$tmpdir'

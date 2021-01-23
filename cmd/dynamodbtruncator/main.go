@@ -3,10 +3,8 @@ package main
 import (
 	"errors"
 	"log"
-	"net/http"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -35,21 +33,8 @@ func main() {
 			},
 		},
 		Action: func(c *cli.Context) error {
-			var region string
-			if r := c.String("region"); r != "" {
-				region = r
-			} else if r := os.Getenv("AWS_DEFAULT_REGION"); r != "" {
-				region = r
-			} else {
-				return errors.New("AWS region must be required. Please set --region [region name] or environment parameter AWS_DEFAULT_REGION")
-			}
-
 			db := dynamodbtruncator.New(session.Must(session.NewSession(&aws.Config{
-				Region: aws.String(region),
-				HTTPClient: &http.Client{
-					Timeout: time.Second * 10,
-				},
-				MaxRetries: aws.Int(3),
+				Region: aws.String(os.Getenv("AWS_REGION")),
 			})))
 
 			tableStr := c.String("table")

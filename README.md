@@ -1,4 +1,4 @@
-dynamodbtruncator (Table truncate for DynamoDB)
+dynamodbtruncator (Truncate table for DynamoDB)
 ===============================================
 
 [![Test Status](https://github.com/d-tsuji/dynamodbtruncator/workflows/test/badge.svg?branch=master)][actions]
@@ -31,7 +31,7 @@ $ dynamodbtruncator [options]
 ### Example
 
 ```
-$ dynamodbtruncator --table xxx --profile my-profile
+$ dynamodbtruncator --table hoge-table --profile my-profile
 ```
 
 ## Installation

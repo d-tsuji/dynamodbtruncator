@@ -2,12 +2,13 @@ package main
 
 import (
 	"errors"
+	"log"
+	"os"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/d-tsuji/dynamodbtruncator"
 	"github.com/urfave/cli/v2"
-	"log"
-	"os"
 )
 
 func main() {

@@ -9,18 +9,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/aws/aws-sdk-go/service/dynamodb"
-
-	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
-
-	"github.com/google/go-cmp/cmp"
-
-	"github.com/d-tsuji/dynamodbtruncator/testonly"
-
-	"github.com/aws/aws-sdk-go/aws/endpoints"
-
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/endpoints"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
+	"github.com/d-tsuji/dynamodbtruncator/testonly"
+	"github.com/google/go-cmp/cmp"
 )
 
 var (
@@ -132,12 +127,12 @@ func TestTable_Truncate(t *testing.T) {
 
 func TestTables_TruncateAll(t *testing.T) {
 	tests := []struct {
-		name            string
-		tableName       string
-		inputDataCmd    []string
-		cleanUpCmd      []string
+		name                  string
+		tableName             string
+		inputDataCmd          []string
+		cleanUpCmd            []string
 		wantOutFilePathTables map[string]string
-		wantErr         bool
+		wantErr               bool
 	}{
 		{
 			name:      "all tables will be deleted",
@@ -156,7 +151,7 @@ func TestTables_TruncateAll(t *testing.T) {
 				filepath.Join("testdata", "out2.json"): "test-2",
 				filepath.Join("testdata", "out3.json"): "test-3",
 			},
-			wantErr:         false,
+			wantErr: false,
 		},
 	}
 
@@ -183,4 +178,3 @@ func TestTables_TruncateAll(t *testing.T) {
 		})
 	}
 }
-

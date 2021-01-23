@@ -24,17 +24,16 @@ func main() {
 				Value: "default",
 			},
 			&cli.StringFlag{
-				Name:  "region",
-				Usage: "region name",
-			},
-			&cli.StringFlag{
 				Name:  "table",
 				Usage: "table name",
 			},
 		},
 		Action: func(c *cli.Context) error {
-			db := dynamodbtruncator.New(session.Must(session.NewSession(&aws.Config{
-				Region: aws.String(os.Getenv("AWS_REGION")),
+			db := dynamodbtruncator.New(session.Must(session.NewSessionWithOptions(session.Options{
+				Profile: c.String("profile"),
+				Config: aws.Config{
+					Region: aws.String(os.Getenv("AWS_REGION")),
+				},
 			})))
 
 			tableStr := c.String("table")

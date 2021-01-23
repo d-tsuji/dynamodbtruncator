@@ -170,6 +170,8 @@ func (t Table) batchDelete(ctx context.Context, deletes []map[string]*dynamodb.A
 			if len(remain) > 0 {
 				items = append(items, remain...)
 			}
+		} else {
+			break
 		}
 	}
 

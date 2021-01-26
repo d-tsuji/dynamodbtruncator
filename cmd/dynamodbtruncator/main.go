@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"os"
 
@@ -16,6 +17,7 @@ func main() {
 		Name:      "dynamodbtruncator",
 		Usage:     "Truncate table for DynamoDB",
 		UsageText: "dynamodbtruncator [global options]",
+		Version:   dynamodbtruncator.Version,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:  "profile",
@@ -35,11 +37,11 @@ func main() {
 			var cfg aws.Config
 			regionName := c.String("region")
 			if regionName != "" {
-				cfg.Region= aws.String(regionName)
+				cfg.Region = aws.String(regionName)
 			}
 			db := dynamodbtruncator.New(session.Must(session.NewSessionWithOptions(session.Options{
-				Profile: c.String("profile"),
-				Config: cfg,
+				Profile:           c.String("profile"),
+				Config:            cfg,
 				SharedConfigState: session.SharedConfigEnable,
 			})))
 
@@ -49,6 +51,14 @@ func main() {
 			}
 			return db.Tables(tableName).TruncateAll(c.Context)
 		},
+	}
+	cli.VersionPrinter = func(c *cli.Context) {
+		fmt.Println(c.App.Version)
+	}
+
+	cli.VersionFlag = &cli.BoolFlag{
+		Name:  "version",
+		Usage: "print the version",
 	}
 
 	if err := app.Run(os.Args); err != nil {

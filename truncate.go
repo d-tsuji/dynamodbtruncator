@@ -4,6 +4,7 @@ package dynamodbtruncator
 import (
 	"context"
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -89,9 +90,13 @@ func (t Table) Truncate(ctx context.Context) error {
 		return fmt.Errorf("scan: %w", err)
 	}
 
+	log.Printf("[%s] contains %d items\n", t.name, len(items))
+
 	if err := t.batchDelete(ctx, items); err != nil {
 		return fmt.Errorf("batch delete: %w", err)
 	}
+
+	log.Printf("[%s] complete to trucate table\n", t.name)
 
 	return nil
 }

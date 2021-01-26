@@ -23,23 +23,31 @@ func main() {
 				Value: "default",
 			},
 			&cli.StringFlag{
+				Name:  "region",
+				Usage: "region name",
+			},
+			&cli.StringFlag{
 				Name:  "table",
 				Usage: "table name",
 			},
 		},
 		Action: func(c *cli.Context) error {
+			var cfg aws.Config
+			regionName := c.String("region")
+			if regionName != "" {
+				cfg.Region= aws.String(regionName)
+			}
 			db := dynamodbtruncator.New(session.Must(session.NewSessionWithOptions(session.Options{
 				Profile: c.String("profile"),
-				Config: aws.Config{
-					Region: aws.String(os.Getenv("AWS_REGION")),
-				},
+				Config: cfg,
+				SharedConfigState: session.SharedConfigEnable,
 			})))
 
-			tableStr := c.String("table")
-			if tableStr == "" {
-				return errors.New("table must be required. Please set --table [table1] or --table [table1,table2,...,table9]")
+			tableName := c.String("table")
+			if tableName == "" {
+				return errors.New(`table must be required. Please set "--table table1" or "--table table1,table2,...,table9"`)
 			}
-			return db.Tables(tableStr).TruncateAll(c.Context)
+			return db.Tables(tableName).TruncateAll(c.Context)
 		},
 	}
 

@@ -66,7 +66,7 @@ func (ts Tables) TruncateAll(ctx context.Context) error {
 		table := t
 		eg.Go(func() error {
 			if err := table.Truncate(ctx); err != nil {
-				return fmt.Errorf("table %s truncate: %w", table.name, err)
+				return fmt.Errorf("[%s] truncate: %w", table.name, err)
 			}
 			return nil
 		})
@@ -96,7 +96,7 @@ func (t Table) Truncate(ctx context.Context) error {
 		return fmt.Errorf("batch delete: %w", err)
 	}
 
-	log.Printf("[%s] complete to trucate table\n", t.name)
+	log.Printf("[%s] complete to truncate table\n", t.name)
 
 	return nil
 }
